@@ -1,0 +1,76 @@
+#include <SPI.h>
+#include "nRF24L01.h"
+#include "RF24.h"
+
+RF24 radio(9, 10);
+
+//Define o endereco para comunicacao entre os modulos
+const uint64_t pipe = 0xE14BC8F482LL;
+
+struct
+{
+  int iOpened;
+  int iClosed;
+  int iOutAct;
+}
+Dados;
+
+
+String inputString = "";
+
+void setup()
+{
+  pinMode(13, OUTPUT);
+  pinMode(12, OUTPUT);
+
+  radio.begin();
+  radio.openReadingPipe(1, pipe);
+  radio.startListening();
+
+  Serial1.begin(9600);
+  while (!Serial1);
+
+
+
+  inputString.reserve(200);
+}
+
+void loop()
+{
+ 
+  while (Serial1.available())
+  {
+
+
+    char inChar = (char)Serial1.read();
+
+    if (inChar != '\n')
+      inputString += inChar;
+
+    if (inChar == '\n')
+    {
+    
+      if (inputString == "Act")
+      {
+       
+        digitalWrite(13, HIGH);
+        delay(1000);
+        digitalWrite(13, LOW);
+        
+        delay(1000);
+        
+
+      }
+      
+      inputString = "";
+    }
+  }
+
+
+}
+
+
+
+
+
+

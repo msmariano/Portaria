@@ -1,0 +1,107 @@
+#include <SPI.h>
+#include "nRF24L01.h"
+#include "RF24.h"
+#include "printf.h"
+
+
+RF24 radio(9, 10);
+
+
+const uint64_t pipe = 0xF0F0F0F0E1LL;
+
+
+
+
+struct
+{
+  int iOpened;
+  int iClosed;
+  int iOutAct;
+}
+Dados;
+
+
+
+String inputString = "";
+bool bIniciou = false;
+
+void setup()
+{
+
+ 
+ 
+  radio.begin();
+  radio.openReadingPipe(1, pipe);
+  radio.startListening();  
+  Serial1.begin(9600);
+  Serial.begin(9600); 
+  printf_begin();
+  
+  if (Serial)
+	printf("Iniciando\r\n");
+
+  while (!Serial1);
+  
+  inputString.reserve(200);
+}
+
+void loop()
+{
+  if (Serial && !bIniciou)
+  {
+    bIniciou = true;
+    printf("Comunicacao com Linux iniciada!...Aguardando comando...\r\n");
+    printf("Status do radio\r\n");
+    radio.printDetails();
+  }
+  while (Serial1.available())
+  {   
+    char inChar = (char)Serial1.read();
+    if (inChar != '\n')
+      inputString += inChar;
+
+    if (inChar == '\n')
+    {
+      
+      if (inputString == "Act")
+      {
+		
+        if (Serial)
+			printf("Comando de acionamento do portao recebido do linux...\r\n");       
+        
+        Dados.iOutAct = 1;
+        radio.stopListening();
+        radio.openWritingPipe(pipe);
+        bool ok = radio.write(&Dados,sizeof(Dados));
+
+        if(!ok && Serial)
+			printf("Falhou envio...\r\n");
+         
+        radio.openReadingPipe(1,pipe);
+        radio.startListening();
+      }
+	 
+      inputString = "";
+    }
+  }
+  if (radio.available())
+  {
+	 
+	if(Serial)
+		printf("radio disponivel\r\n");
+    bool done = false;
+    while (!done)
+    {
+	  if(Serial)
+		printf("dados recebidos\r\n");
+      done = radio.read(&Dados, sizeof(Dados));     
+    }
+  }
+  
+}
+
+
+
+
+
+
