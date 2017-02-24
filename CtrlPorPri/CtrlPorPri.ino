@@ -8,18 +8,20 @@
 //RF24 radio(9, 10);
 
 
-const uint64_t pipe = 0xF0F0F0F0E1LL;
+//const uint64_t pipe = 0xF0F0F0F0E1LL;
+
+int inClosed = 7;
+int inOpened = 6;
+int outAct   = 5;
 
 
-
-
-struct
+/*struct
 {
   int iOpened;
   int iClosed;
   int iOutAct;
 }
-Dados;
+Dados;*/
 
 
 
@@ -28,6 +30,12 @@ bool bIniciou = false;
 
 void setup()
 {
+  pinMode(inClosed, INPUT_PULLUP);
+  pinMode(inOpened, INPUT_PULLUP);
+  pinMode(outAct, OUTPUT);
+  attachInterrupt(digitalPinToInterrupt(inClosed), Action, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(inOpened), Action, CHANGE);
+  digitalWrite(outAct, LOW);
   /*radio.begin();
   radio.openReadingPipe(1, pipe);
   radio.startListening();*/
@@ -36,7 +44,7 @@ void setup()
   printf_begin();
 
   if (Serial)
-    printf("Iniciando\r\n");
+    printf("Iniciando versao 1.0.0 \r\n");
 
   while (!Serial1);
 
@@ -66,6 +74,7 @@ void loop()
 
         if (Serial)
           printf("Comando de acionamento do portao recebido do linux...\r\n");
+        AcionarPortao();
 
         //Dados.iOutAct = 1;
         //radio.stopListening();
@@ -78,6 +87,10 @@ void loop()
         //radio.openReadingPipe(1,pipe);
         //radio.startListening();
       }
+      else if ( inputString == "version"){
+        Serial.println("version 1.0.0");   
+      }
+      
 
       inputString = "";
     }
@@ -107,7 +120,16 @@ void loop()
   
 
 }
+void Action()
+{
+  
+}
 
+void AcionarPortao(){
+   digitalWrite(outAct, HIGH);
+   delay(1000);
+   digitalWrite(outAct, LOW);
+}
 
 
 
