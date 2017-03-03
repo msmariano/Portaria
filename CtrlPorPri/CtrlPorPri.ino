@@ -58,11 +58,13 @@ void setup()
 
 void loop()
 {
+  //Indicar inicialização
   if (!bIniciou)
   {
     bIniciou = true;
     digitalWrite(pinState, HIGH);
   }
+  
   while (Serial1.available())
   {
     char inChar = (char)Serial1.read();
@@ -93,6 +95,9 @@ void loop()
       }
       else if ( inputString == "version"){
         Serial1.println("version 1.0.0");   
+      }
+      else if (inputString == "getState"){
+            
       }
       
 
