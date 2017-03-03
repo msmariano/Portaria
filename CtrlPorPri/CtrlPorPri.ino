@@ -13,6 +13,7 @@
 int inClosed = 7;
 int inOpened = 6;
 int outAct   = 5;
+int pinState = 4;
 
 
 /*struct
@@ -33,32 +34,34 @@ void setup()
   pinMode(inClosed, INPUT_PULLUP);
   pinMode(inOpened, INPUT_PULLUP);
   pinMode(outAct, OUTPUT);
+  pinMode(pinState,OUTPUT);
+  
   attachInterrupt(digitalPinToInterrupt(inClosed), Action, CHANGE);
   attachInterrupt(digitalPinToInterrupt(inOpened), Action, CHANGE);
   digitalWrite(outAct, LOW);
+  digitalWrite(pinState, LOW);
   /*radio.begin();
   radio.openReadingPipe(1, pipe);
   radio.startListening();*/
   Serial1.begin(9600);
-  Serial.begin(9600);
-  printf_begin();
+  //Serial.begin(9600);
+  //printf_begin();
 
-  if (Serial)
-    printf("Iniciando versao 1.0.0 \r\n");
+  /*if (Serial)
+    printf("Iniciando versao 1.0.0 \r\n");*/
 
   while (!Serial1);
 
   inputString.reserve(200);
+  warning(20);
 }
 
 void loop()
 {
-  if (Serial && !bIniciou)
+  if (!bIniciou)
   {
     bIniciou = true;
-    printf("Comunicacao com Linux iniciada!...Aguardando comando...\r\n");
-    //printf("Status do radio\r\n");
-    //radio.printDetails();
+    digitalWrite(pinState, HIGH);
   }
   while (Serial1.available())
   {
@@ -72,10 +75,11 @@ void loop()
       if (inputString == "Act")
       {
 
-        if (Serial)
-          printf("Comando de acionamento do portao recebido do linux...\r\n");
+        /*if (Serial)
+          printf("Comando de acionamento do portao recebido do linux...\r\n");*/
         AcionarPortao();
-
+        warning(2);
+        digitalWrite(pinState, HIGH);
         //Dados.iOutAct = 1;
         //radio.stopListening();
         //radio.openWritingPipe(pipe);
@@ -88,7 +92,7 @@ void loop()
         //radio.startListening();
       }
       else if ( inputString == "version"){
-        Serial.println("version 1.0.0");   
+        Serial1.println("version 1.0.0");   
       }
       
 
@@ -130,6 +134,19 @@ void AcionarPortao(){
    delay(1000);
    digitalWrite(outAct, LOW);
 }
+
+void warning(int pulses)
+{
+  for (int i=0;i<pulses;i++)
+  {
+   digitalWrite(pinState, HIGH);
+   delay(50);
+   digitalWrite(pinState, LOW);
+   delay(50);
+  }
+  
+}
+
 
 
 
