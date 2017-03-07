@@ -93,6 +93,9 @@ void loop()
         //radio.openReadingPipe(1,pipe);
         //radio.startListening();
       }
+      else if ( inputString == "Test"){
+         Serial1.println("Testando Arduino Leonardo rodando controle automatico portão");  
+      }
       else if ( inputString == "version"){
         Serial1.println("version 1.0.0");   
       }
